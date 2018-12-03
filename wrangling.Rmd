@@ -1,0 +1,150 @@
+---
+title: "Data wrangling"
+output: pdf_document
+---
+
+## Load Packages
+```{r warning=FALSE}
+require(mosaic)
+require(tidyverse)
+require(lubridate)
+```
+
+## Load Datasets
+```{r message=FALSE, warning=FALSE}
+regions <- read_csv("NOC_Region.csv")
+athletes <- read_csv("Olympics_Athletes.csv")
+countrycode <- read_csv("ISOCountryCode.csv")
+temphistory <- readxl::read_xlsx("Historical_Temp_Data.xlsx", sheet = 2)
+olymweat <- readxl::read_xlsx("Olympics_Weather_Data.xlsx")
+```
+
+## Data Previews
+```{r}
+head(regions)
+head(athletes)
+head(countrycode)
+head(temphistory)
+head(olymweat, 20)
+```
+
+
+## Combine countrycode and temphistory data
+```{r}
+# combine countrycode and temphistory
+countrytemp <- left_join(temphistory, countrycode, by = c("ISO_3DIGIT" = "alpha-3")) %>%
+  select(-c(16:24), -`ISO_3DIGIT`)
+
+# change name of each month column so that wrangling is easier later on
+names(countrytemp)[c(1:12)] <- c(1:12)
+```
+
+## Clean up olymweat dates 
+```{r}
+# clean up dates column
+olymweat2 <- olymweat %>%
+  rename("StartDate" = `Start Date`,
+         "EndDate" = `End Date`) %>%
+  mutate(StartDate = as.character(StartDate),
+         EndDate = as.character(EndDate),
+         StartMonth = strsplit(StartDate, split = "-")[[1]][2],
+         EndMonth = strsplit(EndDate, split = "-")[[1]][2],
+         StartDay = strsplit(StartDate, split = "-")[[1]][3],
+         EndDay = strsplit(EndDate, split = "-")[[1]][3]) %>%
+  select(-StartDate, -EndDate)
+
+head(olymweat2)
+```
+
+## Combine athletes and region
+```{r}
+athletes2 <- athletes %>%
+  left_join(regions, by = c('NOC' = 'NOC')) %>%
+  select(-notes, -NOC, -Games)
+```
+
+
+
+## Combine olymweat2 and athletes
+```{r}
+olympics1 <- left_join(athletes2, olymweat2, by = c("Year" = "Year", "Season" = "Season")) %>%
+  select(-City.y) %>%
+  rename(City = City.x) %>%
+  filter(!(Year %in% c(1896,1900,1904,1906,1908,1912,1920,1924,1928) & Season == "Summer")) %>%
+  mutate(CityTemp1 = `Hist Avg Temp Mon1 [C]` + `Diff Avg Temp Mon1 [C]`,
+         CityTemp2 = `Hist Avg Temp Mon2 [C]` + `Diff Avg Temp Mon2 [C]`) %>%
+  select(-`Hist Avg Temp Mon1 [C]`, -`Hist Avg Temp Mon2 [C]`, -`Diff Avg Temp Mon1 [C]`, -`Diff Avg Temp Mon2 [C]`)
+
+
+
+
+```
+
+
+## Combine olympics1 with countrytemp
+```{r}
+olympics2 <- left_join(olympics1, countrytemp, by = c("region" = "name"))
+
+# create vector of the starting and ending months of each olympic
+startmon <- as.character(as.integer(olympics1$StartMonth))
+endmon <- as.character(as.integer(olympics1$EndMonth))
+
+# loop through olympics2 to gather the temperature of months that corresponds to the olympic months for each athlete's home country
+# store this data in histtemp1 and histtemp2
+
+histtemp1 <- c()
+histtemp2 <- c()
+for (i in 1:nrow(olympics2)){
+  histtemp1[i] <- olympics2[[i,startmon[i]]]
+  histtemp2[i] <- olympics2[[i,endmon[i]]]
+}
+
+# add create
+olympics2$histtemp1 <- histtemp1
+olympics2$histtemp2 <- histtemp2
+
+# get rid of temperature data of every month
+olympics2 <- olympics2 %>%
+  select(-`1`,-`2`,-`3`,-`4`,-`5`,-`6`,-`7`,-`8`,-`9`,-`10`,-`11`,-`12`, -Annual_temp)
+```
+
+
+## Calculate difference between host city temperature and home country temperature
+```{r}
+# calculate the ratio of days in the first and second month
+olympics3 <- olympics2 %>%
+  mutate(NumDayMon1 = ifelse(as.integer(EndDay) > `Number of Days`, `Number of Days`, `Number of Days` - as.integer(EndDay)),
+         NumDayMon2 = `Number of Days` - NumDayMon1,
+         RatioMon1 = NumDayMon1/`Number of Days`,
+         RatioMon2 = 1 - RatioMon1) %>%
+# calculate the total difference
+  mutate(tempdiff = (CityTemp1 - histtemp1)*RatioMon1 + (CityTemp2 - histtemp2)*RatioMon2) %>% 
+# get rid of columns that were used in the calculation for temperature difference
+  select(-CityTemp1, -CityTemp2, -histtemp1, -histtemp2, -NumDayMon1, -NumDayMon2, -RatioMon1, -RatioMon2)
+```
+
+# output dataframe with tempdiff != NA
+```{r}
+tooutput <- olympics3 %>%
+  filter(!is.na(tempdiff))
+
+write.csv(tooutput,"preliminary wrangling.csv")
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
