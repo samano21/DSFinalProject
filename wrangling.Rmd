@@ -4,7 +4,7 @@ output: pdf_document
 ---
 
 ## Load Packages
-```{r warning=FALSE}
+```{r warning=FALSE, message = FALSE}
 require(mosaic)
 require(tidyverse)
 require(lubridate)
@@ -116,9 +116,11 @@ olympics3 <- olympics2 %>%
   mutate(NumDayMon1 = ifelse(as.integer(EndDay) > `Number of Days`, `Number of Days`, `Number of Days` - as.integer(EndDay)),
          NumDayMon2 = `Number of Days` - NumDayMon1,
          RatioMon1 = NumDayMon1/`Number of Days`,
-         RatioMon2 = 1 - RatioMon1) %>%
+         RatioMon2 = 1 - RatioMon1,
+         CityTemp2 = ifelse(is.na(CityTemp2), 0, CityTemp2)) %>%
 # calculate the total difference
-  mutate(tempdiff = (CityTemp1 - histtemp1)*RatioMon1 + (CityTemp2 - histtemp2)*RatioMon2) %>% 
+  mutate(tempdiff = (CityTemp1 - histtemp1)*RatioMon1 + (CityTemp2 - histtemp2)*RatioMon2) %>%
+  
 # get rid of columns that were used in the calculation for temperature difference
   select(-CityTemp1, -CityTemp2, -histtemp1, -histtemp2, -NumDayMon1, -NumDayMon2, -RatioMon1, -RatioMon2)
 ```
@@ -127,6 +129,8 @@ olympics3 <- olympics2 %>%
 ```{r}
 tooutput <- olympics3 %>%
   filter(!is.na(tempdiff))
+
+olympics3
 
 write.csv(tooutput,"preliminary wrangling.csv")
 ```
