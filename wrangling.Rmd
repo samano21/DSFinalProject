@@ -10,6 +10,11 @@ require(tidyverse)
 require(lubridate)
 ```
 
+```{r}
+getwd()
+
+```
+
 ## Load Datasets
 ```{r message=FALSE, warning=FALSE}
 regions <- read_csv("NOC_Region.csv")
