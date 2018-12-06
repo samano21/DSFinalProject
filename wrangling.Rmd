@@ -8,20 +8,21 @@ output: pdf_document
 require(mosaic)
 require(tidyverse)
 require(lubridate)
+require(rvest)
+require(lme4)
 ```
 
 ```{r}
-getwd()
-
+wd <- getwd()
 ```
 
 ## Load Datasets
 ```{r message=FALSE, warning=FALSE}
-regions <- read_csv("NOC_Region.csv")
-athletes <- read_csv("Olympics_Athletes.csv")
-countrycode <- read_csv("ISOCountryCode.csv")
-temphistory <- readxl::read_xlsx("Historical_Temp_Data.xlsx", sheet = 2)
-olymweat <- readxl::read_xlsx("Olympics_Weather_Data.xlsx")
+regions <- read_csv(paste0(wd,"/Data/NOC_Region.csv"))
+athletes <- read_csv(paste0(wd,"/Data/Olympics_Athletes.csv"))
+countrycode <- read_csv(paste0(wd,"/Data/ISOCountryCode.csv"))
+temphistory <- readxl::read_xlsx(paste0(wd,"/Data/Historical_Temp_Data.xlsx"), sheet = 2)
+olymweat <- readxl::read_xlsx(paste0(wd,"/Data/Olympics_Weather_Data.xlsx"))
 ```
 
 ## Data Previews
@@ -68,6 +69,30 @@ athletes2 <- athletes %>%
   select(-notes, -NOC, -Games)
 ```
 
+## Wrangling elevation data 
+```{r}
+wikiTable <- function(source) {
+  read_html(source)%>%
+    html_nodes("table.wikitable") %>%
+    html_table(fill=T)%>%
+    magrittr::extract2(1)
+}
+# Read in wikipedia table for average elevation per country
+elevation <- wikiTable("https://en.wikipedia.org/wiki/List_of_countries_by_average_elevation#cite_note-1")
+
+# Clean up elevation data
+elelist <- strsplit(elevation$Elevation, "m")
+vec <- c()
+for (i in 1:length(elelist)){
+  vec[i] <- elelist[[i]][1]
+}
+
+# Clean up dataframe
+elevation$Elevation <- vec
+elevation <- elevation %>%
+  mutate(Elevation = parse_number(Elevation))
+```
+
 
 
 ## Combine olymweat2 and athletes
@@ -79,9 +104,6 @@ olympics1 <- left_join(athletes2, olymweat2, by = c("Year" = "Year", "Season" = 
   mutate(CityTemp1 = `Hist Avg Temp Mon1 [C]` + `Diff Avg Temp Mon1 [C]`,
          CityTemp2 = `Hist Avg Temp Mon2 [C]` + `Diff Avg Temp Mon2 [C]`) %>%
   select(-`Hist Avg Temp Mon1 [C]`, -`Hist Avg Temp Mon2 [C]`, -`Diff Avg Temp Mon1 [C]`, -`Diff Avg Temp Mon2 [C]`)
-
-
-
 
 ```
 
@@ -128,6 +150,65 @@ olympics3 <- olympics2 %>%
   
 # get rid of columns that were used in the calculation for temperature difference
   select(-CityTemp1, -CityTemp2, -histtemp1, -histtemp2, -NumDayMon1, -NumDayMon2, -RatioMon1, -RatioMon2)
+```
+
+## Combine elevation data with olympics3 and compute elevation difference
+```{r}
+olympics4 <- olympics3 %>%
+  left_join(elevation, by = c("region" = "Country")) %>%
+  mutate(elevdiff = Altitude - Elevation) %>% 
+  select(-Elevation, -Altitude)
+```
+
+## Clean up medal data
+```{r}
+olympics5 <- olympics4 %>%
+  mutate(Medal = ifelse(is.na(Medal), "0", Medal),
+         Medal = ifelse(Medal == "Bronze", "1", Medal),
+         Medal = ifelse(Medal == "Silver", "2", Medal),
+         Medal = ifelse(Medal == "Gold", "3", Medal),
+         Medal = as.integer(Medal)) 
+  
+  
+totalmedals <- olympics5 %>%
+  group_by(Year,Season) %>%
+  summarise(TotMed = sum(Medal))
+totalmedals
+```
+
+## Calculate percentage of medals won by each country
+```{r}
+olympics6 <- olympics5 %>%
+  group_by(Year, Season, region) %>%
+  summarise(medalswon = sum(Medal)) %>%
+  left_join(totalmedals, by = c("Year" = "Year", "Season" = "Season")) %>%
+  mutate(medratio = medalswon / TotMed)
+```
+
+## Grouped Countries by getting rid of distinctions between each athletes
+```{r}
+olympics7 <- olympics4 %>% 
+  select(Year, Season, region, tempdiff, elevdiff)
+
+duplicated <- olympics4 %>% 
+  select(Year, Season, region, tempdiff, elevdiff) %>%
+  duplicated() 
+
+olympics8 <- olympics7[!duplicated,]
+```
+
+## Combined temperature/elevation data with medal data
+```{r}
+olympics9 <- olympics6 %>%
+  left_join(olympics8, by = c("Year" = "Year", "Season" = "Season", "region" = "region"))
+```
+
+```{r}
+olympics9
+
+summary(lm(medratio ~ tempdiff + elevdiff + Year, data = olympics9))
+summary(glmer(medratio ~ tempdiff + elevdiff + Year + (1|region), data = olympics9))
+
 ```
 
 # output dataframe with tempdiff != NA
