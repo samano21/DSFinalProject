@@ -1,0 +1,35 @@
+---
+title: "analysis"
+output: pdf_document
+---
+
+```{r}
+require(tidyverse)
+require(mosaic)
+require(lme4)
+```
+
+## load dataset
+```{r}
+load("olympics9.Rdata")
+olympicsds <-  olympics9
+```
+
+
+## EDA
+```{r}
+olympicsds %>%
+  filter(abs(tempdiff) > 10)
+
+nrow(olympicsds)
+
+ggplot(olympicsds, aes(x = tempdiff, y = medratio)) + geom_point()
+
+```
+
+
+
+```{r}
+summary(lm(medratio ~ tempdiff + elevdiff, data = olympicsds))
+summary(glmer(medratio ~ tempdiff + elevdiff + Year + (1|region), data = olympicsds))
+```

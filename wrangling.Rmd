@@ -12,12 +12,9 @@ require(rvest)
 require(lme4)
 ```
 
-```{r}
-wd <- getwd()
-```
-
 ## Load Datasets
 ```{r message=FALSE, warning=FALSE}
+wd <- getwd()
 regions <- read_csv(paste0(wd,"/Data/NOC_Region.csv"))
 athletes <- read_csv(paste0(wd,"/Data/Olympics_Athletes.csv"))
 countrycode <- read_csv(paste0(wd,"/Data/ISOCountryCode.csv"))
@@ -133,6 +130,8 @@ olympics2$histtemp2 <- histtemp2
 # get rid of temperature data of every month
 olympics2 <- olympics2 %>%
   select(-`1`,-`2`,-`3`,-`4`,-`5`,-`6`,-`7`,-`8`,-`9`,-`10`,-`11`,-`12`, -Annual_temp)
+
+olympics2
 ```
 
 
@@ -203,22 +202,10 @@ olympics9 <- olympics6 %>%
   left_join(olympics8, by = c("Year" = "Year", "Season" = "Season", "region" = "region"))
 ```
 
+
+## save olympics9 as R.data
 ```{r}
-olympics9
-
-summary(lm(medratio ~ tempdiff + elevdiff + Year, data = olympics9))
-summary(glmer(medratio ~ tempdiff + elevdiff + Year + (1|region), data = olympics9))
-
-```
-
-# output dataframe with tempdiff != NA
-```{r}
-tooutput <- olympics3 %>%
-  filter(!is.na(tempdiff))
-
-olympics3
-
-write.csv(tooutput,"preliminary wrangling.csv")
+save(olympics9, "olympics9", file = "olympics9.Rdata")
 ```
 
 
