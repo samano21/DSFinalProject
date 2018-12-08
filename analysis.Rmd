@@ -3,6 +3,17 @@ title: "analysis"
 output: pdf_document
 ---
 
+- indoor vs outdoor
+- similar vs nonsimilar by year
+- determine threshold
+- make presentation
+- think of another visual
+- seperate by season
+- conditions of mlr
+
+
+
+
 ```{r}
 require(tidyverse)
 require(mosaic)
@@ -16,20 +27,33 @@ olympicsds <-  olympics9
 ```
 
 
-## EDA
+
+## Study similar vs non-similar country totals
 ```{r}
 olympicsds %>%
-  filter(abs(tempdiff) > 10)
+  filter(abs(tempdiff) > 10,
+         abs(elevdiff) > 300) %>%
+  nrow()
 
-nrow(olympicsds)
+olympicsds %>%
+  filter(!is.na(abs(tempdiff)))
+  mutate(similar = ifelse((abs(tempdiff) > 10) & (abs(elevdiff) > 300), 0, 1),
+         similar = as.factor(similar)) %>%
+  group_by(Year, Season, similar) 
 
-ggplot(olympicsds, aes(x = tempdiff, y = medratio)) + geom_point()
+%>%
+  summarise(totmedratio = sum(medratio))
 
+olympicds1
 ```
 
 
 
 ```{r}
 summary(lm(medratio ~ tempdiff + elevdiff, data = olympicsds))
-summary(glmer(medratio ~ tempdiff + elevdiff + Year + (1|region), data = olympicsds))
+summary(lmer(medratio ~ tempdiff + elevdiff + Year + (1|region) + Season, data = olympicsds))
+
+summary(lm(medratio ~ elevdiff, data = olympicsds))
+
+olympicsds
 ```

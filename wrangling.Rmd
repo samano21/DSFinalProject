@@ -31,7 +31,6 @@ head(temphistory)
 head(olymweat, 20)
 ```
 
-
 ## Combine countrycode and temphistory data
 ```{r}
 # combine countrycode and temphistory
@@ -207,7 +206,6 @@ olympics9 <- olympics6 %>%
 ```{r}
 save(olympics9, "olympics9", file = "olympics9.Rdata")
 ```
-
 
 
 
