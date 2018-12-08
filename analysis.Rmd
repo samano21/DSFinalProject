@@ -50,3 +50,26 @@ summary(lm(medratio ~ elevdiff, data = olympicsds))
 
 olympicsds
 ```
+
+
+
+#Finding Thresholds for "Similar/Nonsimilar temp/elev"
+```{r}
+olympics9
+favstats(~tempdiff, data=olympics9)
+favstats(~elevdiff, data=olympics9)
+
+olympics9%>%
+ggplot(aes(x=tempdiff))+
+  geom_density()+
+  geom_vline(xintercept=-11.41662)+
+  geom_vline(xintercept=1.760962)
+  
+
+olympics9%>%
+ggplot(aes(x=elevdiff))+
+  geom_density()+
+  geom_vline(xintercept=-573.75)+
+  geom_vline(xintercept=-32.25)
+
+```
