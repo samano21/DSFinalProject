@@ -28,22 +28,16 @@ olympicsds <-  olympics9
 
 
 
-## Study similar vs non-similar country totals
+## Very Basic Graphs
 ```{r}
 olympicsds %>%
-  filter(abs(tempdiff) > 10,
-         abs(elevdiff) > 300) %>%
-  nrow()
-
-olympicsds
+  ggplot(aes(x = elevdiff)) + geom_density()
 
 olympicsds %>%
-  filter(!is.na(abs(tempdiff))) %>%
-  mutate(similar = ifelse((abs(tempdiff) > 10) & (abs(elevdiff) > 300), 0, 1),
-         similar = as.factor(similar)) %>%
-  group_by(Year, Season, similar) 
+  filter(Season == "Winter", ) %>%
+  ggplot(aes(x = elevdiff, y = medratio)) + geom_point()
 
-
+olympicsds
 ```
 
 
