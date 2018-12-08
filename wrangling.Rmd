@@ -20,6 +20,7 @@ athletes <- read_csv(paste0(wd,"/Data/Olympics_Athletes.csv"))
 countrycode <- read_csv(paste0(wd,"/Data/ISOCountryCode.csv"))
 temphistory <- readxl::read_xlsx(paste0(wd,"/Data/Historical_Temp_Data.xlsx"), sheet = 2)
 olymweat <- readxl::read_xlsx(paste0(wd,"/Data/Olympics_Weather_Data.xlsx"))
+inout <- Class.csv <- read_csv(paste0(wd, "/Data/indooroutdoorClass.csv"))
 ```
 
 ## Data Previews
@@ -29,6 +30,7 @@ head(athletes)
 head(countrycode)
 head(temphistory)
 head(olymweat, 20)
+head(inout)
 ```
 
 ## Combine countrycode and temphistory data
@@ -53,7 +55,7 @@ olymweat2 <- olymweat %>%
          EndMonth = strsplit(EndDate, split = "-")[[1]][2],
          StartDay = strsplit(StartDate, split = "-")[[1]][3],
          EndDay = strsplit(EndDate, split = "-")[[1]][3]) %>%
-  select(-StartDate, -EndDate)
+  select(-StartDate, -EndDate) 
 
 head(olymweat2)
 ```
@@ -91,7 +93,7 @@ elevation <- elevation %>%
 
 
 
-## Combine olymweat2 and athletes
+## Combine olymweat2 and athletes and filter out indoor sports
 ```{r}
 olympics1 <- left_join(athletes2, olymweat2, by = c("Year" = "Year", "Season" = "Season")) %>%
   select(-City.y) %>%
@@ -99,8 +101,11 @@ olympics1 <- left_join(athletes2, olymweat2, by = c("Year" = "Year", "Season" = 
   filter(!(Year %in% c(1896,1900,1904,1906,1908,1912,1920,1924,1928) & Season == "Summer")) %>%
   mutate(CityTemp1 = `Hist Avg Temp Mon1 [C]` + `Diff Avg Temp Mon1 [C]`,
          CityTemp2 = `Hist Avg Temp Mon2 [C]` + `Diff Avg Temp Mon2 [C]`) %>%
-  select(-`Hist Avg Temp Mon1 [C]`, -`Hist Avg Temp Mon2 [C]`, -`Diff Avg Temp Mon1 [C]`, -`Diff Avg Temp Mon2 [C]`)
-
+  select(-`Hist Avg Temp Mon1 [C]`, -`Hist Avg Temp Mon2 [C]`, 
+         -`Diff Avg Temp Mon1 [C]`, -`Diff Avg Temp Mon2 [C]`) %>%
+  left_join(inout, by = c("Sport" = "Sport")) %>%
+  # filtering out indoor sports
+  filter(isindoor == 0)
 ```
 
 

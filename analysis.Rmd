@@ -35,16 +35,15 @@ olympicsds %>%
          abs(elevdiff) > 300) %>%
   nrow()
 
+olympicsds
+
 olympicsds %>%
-  filter(!is.na(abs(tempdiff)))
+  filter(!is.na(abs(tempdiff))) %>%
   mutate(similar = ifelse((abs(tempdiff) > 10) & (abs(elevdiff) > 300), 0, 1),
          similar = as.factor(similar)) %>%
   group_by(Year, Season, similar) 
 
-%>%
-  summarise(totmedratio = sum(medratio))
 
-olympicds1
 ```
 
 
