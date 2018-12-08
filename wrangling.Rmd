@@ -43,6 +43,21 @@ countrytemp <- left_join(temphistory, countrycode, by = c("ISO_3DIGIT" = "alpha-
 names(countrytemp)[c(1:12)] <- c(1:12)
 ```
 
+## Clean up countrytemp 
+```{r}
+pos <- which(countrytemp$name %in% c("Czechia",
+                                     "Korea (Republic of)",
+                                     "Russian Federation",
+                                     "Trinidad and Tobago",
+                                     "United Kingdom of Great Britain and Northern Ireland", 
+                                     "United States of America",
+                                     "Viet Nam"))
+countrytemp[pos,]$name <- c("Czech Republic","UK","South Korea","Russia","Trinidad","USA", "Vietnam")
+countrytemp$name
+
+countrytemp[pos,]$name
+```
+
 ## Clean up olymweat dates 
 ```{r}
 # clean up dates column
@@ -89,6 +104,10 @@ for (i in 1:length(elelist)){
 elevation$Elevation <- vec
 elevation <- elevation %>%
   mutate(Elevation = parse_number(Elevation))
+
+# Change string United Kingdom and United States to UK and USA
+pos <- which(elevation$Country %in% c("United Kingdom","United States"))
+elevation[pos,1] <- c("UK", "USA")
 ```
 
 
