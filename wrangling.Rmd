@@ -55,12 +55,7 @@ pos <- which(countrytemp$name %in% c("Bolivia (Plurinational State of)",
                                      "Venezuela (Bolivarian Republic of)",
                                      "Viet Nam"))
 
-pos
-
 countrytemp[pos,]$name <- c("Bolivia","Czech Republic","UK","South Korea","Russia","Trinidad","USA", "Venezuela", "Vietnam")
-countrytemp$name
-
-countrytemp[pos,]$name
 ```
 
 ## Clean up olymweat dates 
@@ -111,8 +106,9 @@ elevation <- elevation %>%
   mutate(Elevation = parse_number(Elevation))
 
 # Change string United Kingdom and United States to UK and USA
-pos <- which(elevation$Country %in% c("United Kingdom","United States"))
-elevation[pos,1] <- c("UK", "USA")
+pos <- which(elevation$Country %in% c("Trinidad and Tobago","United Kingdom","United States"))
+pos
+elevation[pos,1] <- c("Trinidad","UK", "USA")
 ```
 
 
