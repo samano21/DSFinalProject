@@ -74,5 +74,6 @@ ggplot(aes(x=elevdiff))+
 
 
 olympics9%>%
-  mutate(sim=ifelse(tempdiff>-11.41662 & tempdiff<1.760962, 1, 0))
+  mutate(sim=ifelse((tempdiff>-11.41662 & tempdiff<1.760962) & (elevdiff>-573.75 & elevdiff<32.25), 1, 0))
+
 ```
