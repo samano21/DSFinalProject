@@ -45,14 +45,19 @@ names(countrytemp)[c(1:12)] <- c(1:12)
 
 ## Clean up countrytemp 
 ```{r}
-pos <- which(countrytemp$name %in% c("Czechia",
+pos <- which(countrytemp$name %in% c("Bolivia (Plurinational State of)",
+                                     "Czechia",
                                      "Korea (Republic of)",
                                      "Russian Federation",
                                      "Trinidad and Tobago",
                                      "United Kingdom of Great Britain and Northern Ireland", 
                                      "United States of America",
+                                     "Venezuela (Bolivarian Republic of)",
                                      "Viet Nam"))
-countrytemp[pos,]$name <- c("Czech Republic","UK","South Korea","Russia","Trinidad","USA", "Vietnam")
+
+pos
+
+countrytemp[pos,]$name <- c("Bolivia","Czech Republic","UK","South Korea","Russia","Trinidad","USA", "Venezuela", "Vietnam")
 countrytemp$name
 
 countrytemp[pos,]$name

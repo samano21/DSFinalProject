@@ -34,7 +34,7 @@ olympicsds %>%
   ggplot(aes(x = elevdiff)) + geom_density()
 
 olympicsds %>%
-  filter(Season == "Winter", ) %>%
+  filter(Season == "Winter") %>%
   ggplot(aes(x = elevdiff, y = medratio)) + geom_point()
 
 olympicsds
@@ -71,8 +71,5 @@ ggplot(aes(x=elevdiff))+
   geom_density()+
   geom_vline(xintercept=-573.75)+
   geom_vline(xintercept=-32.25)
-
-olympics9%>%
-  mutate(sim=ifelse(tempdiff>-11.41662 & tempdiff<1.760962, 1, 0))
 
 ```
