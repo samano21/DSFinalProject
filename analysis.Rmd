@@ -72,4 +72,7 @@ ggplot(aes(x=elevdiff))+
   geom_vline(xintercept=-573.75)+
   geom_vline(xintercept=-32.25)
 
+olympics9%>%
+  mutate(sim=ifelse(tempdiff>-11.41662 & tempdiff<1.760962, 1, 0))
+
 ```
