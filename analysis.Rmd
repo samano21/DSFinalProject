@@ -43,10 +43,7 @@ olympicsds
 
 
 ```{r}
-summary(lm(medratio ~ tempdiff + elevdiff, data = olympicsds))
-summary(lmer(medratio ~ tempdiff + elevdiff + Year + (1|region) + Season, data = olympicsds))
-
-summary(lm(medratio ~ elevdiff, data = olympicsds))
+summary(lmer(medratio ~ tempdiff + elevdiff + (Year|region) + Season, data = olympicsds))
 
 olympicsds
 ```
@@ -84,6 +81,20 @@ olympicsds1 %>%
   ggplot(aes(x = elevdiff, y = medratio, col = Season, )) + geom_point() 
   
 
+uk australia south korea japan germany
+
+
+olympicsds2 <- olympicsds1 %>%
+  filter(region %in% c("Australia", "Germany", "UK")) %>%
+  filter(!is.na(elevdiff), !is.na(tempdiff), Season == "Summer")
+
+
+olympicsds2 %>%
+  filter(!(elevdiff > 1500)) %>%
+  ggplot(aes(x = elevdiff, y = tempdiff)) + geom_point(size = 2.0) + 
+   aes(color = medratio)  +  facet_wrap(~region, ncol = 4) +
+  theme(legend.position = "right") + labs(title = "") + scale_color_gradient(low = "blue", high = "red") +
+  labs(x = "Elevation Difference (Meter)", y = "Temperature Difference (Degree Celcius)", title = "Medal Ratio by Temperature and Elevation Difference in 3 Countries", color = "Medal Ratio") 
 ```
 
 
