@@ -97,7 +97,8 @@ olympicsds2 %>%
   ggplot(aes(x = elevdiff, y = tempdiff)) + geom_point(size = 3.0) + 
    aes(color = medratio)  +  facet_wrap(~region, ncol = 4) +
   theme(legend.position = "right") + labs(title = "") + scale_color_gradient(low = "yellow", high = "blue") +
-  labs(x = "Elevation Difference (Meter)", y = "Temperature Difference (Degree Celcius)", title = "Medal Ratio by Temperature and Elevation Difference in 3 Countries", color = "Medal Ratio") 
+  labs(x = "Elevation Difference (Meter)", y = "Temperature Difference (Degree Celcius)", title = "Medal Ratio by Temperature and Elevation Difference in 3 Countries", color = "Medal Ratio") + 
+  geom_vline(xintercept = 0) + geom_hline(yintercept = 0)
 ```
 
 

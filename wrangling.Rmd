@@ -3,8 +3,14 @@ title: "Data wrangling"
 output: pdf_document
 ---
 
+## Document Options
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+
 ## Load Packages
-```{r warning=FALSE, message = FALSE}
+```{r}
 require(mosaic)
 require(tidyverse)
 require(lubridate)
@@ -14,13 +20,47 @@ require(lme4)
 
 ## Load Datasets
 ```{r message=FALSE, warning=FALSE}
-wd <- getwd()
-regions <- read_csv(paste0(wd,"/Data/NOC_Region.csv"))
-athletes <- read_csv(paste0(wd,"/Data/Olympics_Athletes.csv"))
-countrycode <- read_csv(paste0(wd,"/Data/ISOCountryCode.csv"))
-temphistory <- readxl::read_xlsx(paste0(wd,"/Data/Historical_Temp_Data.xlsx"), sheet = 2)
-olymweat <- readxl::read_xlsx(paste0(wd,"/Data/Olympics_Weather_Data.xlsx"))
-inout <- Class.csv <- read_csv(paste0(wd, "/Data/indooroutdoorClass.csv"))
+regions <- read_csv("Data/NOC_Region.csv")
+athletes <- read_csv("Data/Olympics_Athletes.csv")
+countrycode <- read_csv("Data/ISOCountryCode.csv")
+temphistory <- readxl::read_xlsx("Data/Historical_Temp_Data.xlsx", sheet = 2)
+olymweat <- readxl::read_xlsx("Data/Olympics_Weather_Data.xlsx")
+inout <- Class.csv <- read_csv("Data/indooroutdoorClass.csv")
+```
+
+
+## Wrangling elevation data 
+```{r}
+# Create function to extract elevation data from wikipedia
+wikiTable <- function(source) {
+  read_html(source)%>%
+    html_nodes("table.wikitable") %>%
+    html_table(fill=T)%>%
+    magrittr::extract2(1)
+}
+
+
+# Read in wikipedia table for average elevation per country
+elevation <- wikiTable("https://en.wikipedia.org/wiki/List_of_countries_by_average_elevation#cite_note-1")
+
+
+# Clean up format of elevation value
+elelist <- strsplit(elevation$Elevation, "m")
+vec <- c()
+for (i in 1:length(elelist)){
+  vec[i] <- elelist[[i]][1]
+}
+elevation$Elevation <- vec
+elevation <- elevation %>%
+  mutate(Elevation = parse_number(Elevation))
+
+
+# Change string United Kingdom and United States to UK and USA
+pos <- which(elevation$Country %in% c("Trinidad and Tobago","United Kingdom","United States"))
+elevation[pos,1] <- c("Trinidad","UK", "USA")
+
+# Glimpse dataset
+glimpse(elevation)
 ```
 
 ## Data Previews
@@ -31,6 +71,7 @@ head(countrycode)
 head(temphistory)
 head(olymweat, 20)
 head(inout)
+head(elevation)
 ```
 
 ## Combine countrycode and temphistory data
@@ -82,36 +123,6 @@ athletes2 <- athletes %>%
   select(-notes, -NOC, -Games)
 ```
 
-## Wrangling elevation data 
-```{r}
-wikiTable <- function(source) {
-  read_html(source)%>%
-    html_nodes("table.wikitable") %>%
-    html_table(fill=T)%>%
-    magrittr::extract2(1)
-}
-# Read in wikipedia table for average elevation per country
-elevation <- wikiTable("https://en.wikipedia.org/wiki/List_of_countries_by_average_elevation#cite_note-1")
-
-# Clean up elevation data
-elelist <- strsplit(elevation$Elevation, "m")
-vec <- c()
-for (i in 1:length(elelist)){
-  vec[i] <- elelist[[i]][1]
-}
-
-# Clean up dataframe
-elevation$Elevation <- vec
-elevation <- elevation %>%
-  mutate(Elevation = parse_number(Elevation))
-
-# Change string United Kingdom and United States to UK and USA
-pos <- which(elevation$Country %in% c("Trinidad and Tobago","United Kingdom","United States"))
-pos
-elevation[pos,1] <- c("Trinidad","UK", "USA")
-```
-
-
 
 ## Combine olymweat2 and athletes and filter out indoor sports
 ```{r}
@@ -119,13 +130,14 @@ olympics1 <- left_join(athletes2, olymweat2, by = c("Year" = "Year", "Season" = 
   select(-City.y) %>%
   rename(City = City.x) %>%
   filter(!(Year %in% c(1896,1900,1904,1906,1908,1912,1920,1924,1928) & Season == "Summer")) %>%
-  mutate(CityTemp1 = `Hist Avg Temp Mon1 [C]` + `Diff Avg Temp Mon1 [C]`,
-         CityTemp2 = `Hist Avg Temp Mon2 [C]` + `Diff Avg Temp Mon2 [C]`) %>%
-  select(-`Hist Avg Temp Mon1 [C]`, -`Hist Avg Temp Mon2 [C]`, 
-         -`Diff Avg Temp Mon1 [C]`, -`Diff Avg Temp Mon2 [C]`) %>%
+  mutate(CityTemp1 = TempMon1,
+         CityTemp2 = TempMon2) %>%
   left_join(inout, by = c("Sport" = "Sport")) %>%
   # filtering out indoor sports
-  filter(isindoor == 0)
+  filter(isindoor == 0) %>%
+  select(-ID, -Sex, -Age, -Height, -Weight, -Team, -Event, -TempMon1, -TempMon2)
+
+head(olympics1)
 ```
 
 
