@@ -39,10 +39,8 @@ wikiTable <- function(source) {
     magrittr::extract2(1)
 }
 
-
 # Read in wikipedia table for average elevation per country
 elevation <- wikiTable("https://en.wikipedia.org/wiki/List_of_countries_by_average_elevation#cite_note-1")
-
 
 # Clean up format of elevation value
 elelist <- strsplit(elevation$Elevation, "m")
@@ -54,54 +52,55 @@ elevation$Elevation <- vec
 elevation <- elevation %>%
   mutate(Elevation = parse_number(Elevation))
 
-
-# Change string United Kingdom and United States to UK and USA
+# Change format of name of countries
 pos <- which(elevation$Country %in% c("Trinidad and Tobago","United Kingdom","United States"))
 elevation[pos,1] <- c("Trinidad","UK", "USA")
-
-# Glimpse dataset
-glimpse(elevation)
 ```
 
-## Data Previews
+## Glimpse Data 
 ```{r}
-head(regions)
-head(athletes)
-head(countrycode)
-head(temphistory)
-head(olymweat, 20)
-head(inout)
-head(elevation)
+glimpse(regions)
+glimpse(athletes)
+glimpse(countrycode)
+glimpse(temphistory)
+glimpse(olymweat)
+glimpse(inout)
+glimpse(elevation)
 ```
 
 ## Combine countrycode and temphistory data
 ```{r}
-# combine countrycode and temphistory
+# Join countrycode and temphistory 
 countrytemp <- left_join(temphistory, countrycode, by = c("ISO_3DIGIT" = "alpha-3")) %>%
-  select(-c(16:24), -`ISO_3DIGIT`)
+  select(-c(16:24), -`ISO_3DIGIT`) %>%
 
-# change name of each month column so that wrangling is easier later on
-names(countrytemp)[c(1:12)] <- c(1:12)
+# Rename each month column so that wrangling is easier later on
+  plyr::rename(c("Jan_Temp" = "1", "Feb_temp" = "2",
+                 "Mar_temp" = "3", "Apr_Temp" = "4",
+                 "May_temp" = "5", "Jun_Temp" = "6",
+                 "July_Temp" = "7", "Aug_Temp" = "8",
+                 "Sept_temp" = "9", "Oct_temp" = "10",
+                 "Nov_Temp" = "11", "Dec_temp" = "12"))
 ```
 
 ## Clean up countrytemp 
 ```{r}
-pos <- which(countrytemp$name %in% c("Bolivia (Plurinational State of)",
-                                     "Czechia",
-                                     "Korea (Republic of)",
-                                     "Russian Federation",
-                                     "Trinidad and Tobago",
-                                     "United Kingdom of Great Britain and Northern Ireland", 
-                                     "United States of America",
-                                     "Venezuela (Bolivarian Republic of)",
-                                     "Viet Nam"))
-
-countrytemp[pos,]$name <- c("Bolivia","Czech Republic","UK","South Korea","Russia","Trinidad","USA", "Venezuela", "Vietnam")
+# Rename some countries to standardize country name format
+countrytemp <- countrytemp %>%
+  mutate(name = ifelse(name == "Bolivia (Plurinational State of)", "Bolivia", name),
+         name = ifelse(name == "Czechia", "Czech Republic", name),
+         name = ifelse(name == "Korea (Republic of)", "South Korea", name),
+         name = ifelse(name == "Russian Federation", "Russia", name),
+         name = ifelse(name == "Trinidad and Tobago", "Trinidad", name),
+         name = ifelse(name == "United Kingdom of Great Britain and Northern Ireland", "UK", name),
+         name = ifelse(name == "United States of America", "USA", name),
+         name = ifelse(name == "Venezuela (Bolivarian Republic of)", "Venezuela", name),
+         name = ifelse(name == "Viet Nam", "Vietnam", name))
 ```
 
-## Clean up olymweat dates 
+## Clean up dates of olymweat 
 ```{r}
-# clean up dates column
+# Create new variables for starting/ending months and days
 olymweat2 <- olymweat %>%
   rename("StartDate" = `Start Date`,
          "EndDate" = `End Date`) %>%
@@ -111,9 +110,9 @@ olymweat2 <- olymweat %>%
          EndMonth = strsplit(EndDate, split = "-")[[1]][2],
          StartDay = strsplit(StartDate, split = "-")[[1]][3],
          EndDay = strsplit(EndDate, split = "-")[[1]][3]) %>%
-  select(-StartDate, -EndDate) 
 
-head(olymweat2)
+# Get rid of original StartDate and EndDate columns  
+  select(-StartDate, -EndDate)
 ```
 
 ## Combine athletes and region
@@ -126,18 +125,24 @@ athletes2 <- athletes %>%
 
 ## Combine olymweat2 and athletes and filter out indoor sports
 ```{r}
+# Join athletes2 and olymweat2 dataset
 olympics1 <- left_join(athletes2, olymweat2, by = c("Year" = "Year", "Season" = "Season")) %>%
   select(-City.y) %>%
   rename(City = City.x) %>%
+
+# Filter out Olympics that do not follow modern format
   filter(!(Year %in% c(1896,1900,1904,1906,1908,1912,1920,1924,1928) & Season == "Summer")) %>%
   mutate(CityTemp1 = TempMon1,
          CityTemp2 = TempMon2) %>%
-  left_join(inout, by = c("Sport" = "Sport")) %>%
-  # filtering out indoor sports
-  filter(isindoor == 0) %>%
-  select(-ID, -Sex, -Age, -Height, -Weight, -Team, -Event, -TempMon1, -TempMon2)
 
-head(olympics1)
+# Join inout dataset that contains information about indoor/outdoor sports    
+  left_join(inout, by = c("Sport" = "Sport")) %>%
+
+# Filter out indoor sports
+  filter(isindoor == 0) %>%
+  
+# Select out columns without further use
+  select(-ID, -Sex, -Age, -Height, -Weight, -Team, -Event, -TempMon1, -TempMon2)
 ```
 
 
@@ -149,9 +154,8 @@ olympics2 <- left_join(olympics1, countrytemp, by = c("region" = "name"))
 startmon <- as.character(as.integer(olympics1$StartMonth))
 endmon <- as.character(as.integer(olympics1$EndMonth))
 
-# loop through olympics2 to gather the temperature of months that corresponds to the olympic months for each athlete's home country
-# store this data in histtemp1 and histtemp2
-
+# Loop through olympics2 to gather the temperature of months that corresponds to the olympic months for each athlete's home country
+# Store this data in histtemp1 and histtemp2
 histtemp1 <- c()
 histtemp2 <- c()
 for (i in 1:nrow(olympics2)){
@@ -159,81 +163,99 @@ for (i in 1:nrow(olympics2)){
   histtemp2[i] <- olympics2[[i,endmon[i]]]
 }
 
-# add create
+# Create new column corresponding to historic temperature of home countries in each Olympics
 olympics2$histtemp1 <- histtemp1
 olympics2$histtemp2 <- histtemp2
 
-# get rid of temperature data of every month
+# Select out columns without further use
 olympics2 <- olympics2 %>%
   select(-`1`,-`2`,-`3`,-`4`,-`5`,-`6`,-`7`,-`8`,-`9`,-`10`,-`11`,-`12`, -Annual_temp)
-
-olympics2
 ```
 
 
 ## Calculate difference between host city temperature and home country temperature
 ```{r}
-# calculate the ratio of days in the first and second month
+# Calculate the ratio of days in the first and second month
 olympics3 <- olympics2 %>%
-  mutate(NumDayMon1 = ifelse(as.integer(EndDay) > `Number of Days`, `Number of Days`, `Number of Days` - as.integer(EndDay)),
+  mutate(NumDayMon1 = ifelse(as.integer(EndDay) > `Number of Days`, 
+                             `Number of Days`, 
+                             `Number of Days` - as.integer(EndDay)),
          NumDayMon2 = `Number of Days` - NumDayMon1,
          RatioMon1 = NumDayMon1/`Number of Days`,
          RatioMon2 = 1 - RatioMon1,
          CityTemp2 = ifelse(is.na(CityTemp2), 0, CityTemp2)) %>%
-# calculate the total difference
+
+# Calculate the total difference
   mutate(tempdiff = (CityTemp1 - histtemp1)*RatioMon1 + (CityTemp2 - histtemp2)*RatioMon2) %>%
   
-# get rid of columns that were used in the calculation for temperature difference
-  select(-CityTemp1, -CityTemp2, -histtemp1, -histtemp2, -NumDayMon1, -NumDayMon2, -RatioMon1, -RatioMon2)
+# Select out columns without further use 
+  select(-CityTemp1, -CityTemp2, -histtemp1, -histtemp2, -NumDayMon1, 
+         -NumDayMon2, -RatioMon1, -RatioMon2, -`Number of Days`, -StartMonth, 
+         -EndMonth, -StartDay, -EndDay, -isindoor)
 ```
 
 ## Combine elevation data with olympics3 and compute elevation difference
 ```{r}
+# Join olympics3 and elevation dataset
 olympics4 <- olympics3 %>%
   left_join(elevation, by = c("region" = "Country")) %>%
+
+# Calculate average elevation difference
   mutate(elevdiff = Altitude - Elevation) %>% 
+
+# Select out columns without further use
   select(-Elevation, -Altitude)
 ```
 
 ## Clean up medal data
 ```{r}
+# Quantify each medals as follows: Gold = 3, Silver = 2, Bronze = 1, None = 0
 olympics5 <- olympics4 %>%
   mutate(Medal = ifelse(is.na(Medal), "0", Medal),
          Medal = ifelse(Medal == "Bronze", "1", Medal),
          Medal = ifelse(Medal == "Silver", "2", Medal),
          Medal = ifelse(Medal == "Gold", "3", Medal),
          Medal = as.integer(Medal)) 
-  
-  
+```  
+
+## Create dataset that contains total medals for each olympics
+```{r}
+# Group by Year and Season and take the sum of Medal
 totalmedals <- olympics5 %>%
   group_by(Year,Season) %>%
   summarise(TotMed = sum(Medal))
-totalmedals
 ```
 
 ## Calculate percentage of medals won by each country
 ```{r}
+# Calculate the sum of all medals won by each country in each olympics
 olympics6 <- olympics5 %>%
   group_by(Year, Season, region) %>%
   summarise(medalswon = sum(Medal)) %>%
+  
+# Calculate the proportion of total medals that each country won in each olympics 
   left_join(totalmedals, by = c("Year" = "Year", "Season" = "Season")) %>%
   mutate(medratio = medalswon / TotMed)
 ```
 
-## Grouped Countries by getting rid of distinctions between each athletes
+## Get rid of distinctions between each athletes and focus on country level performance
 ```{r}
-olympics7 <- olympics4 %>% 
+# Get rid of all individual distinctions between athletes and focus on country
+olympics7 <- olympics5 %>% 
   select(Year, Season, region, tempdiff, elevdiff)
 
-duplicated <- olympics4 %>% 
-  select(Year, Season, region, tempdiff, elevdiff) %>%
+# There are multiple athletes from the same countries in every olympics, creating duplicates
+# Find which rows has duplicates in olympics7
+duplicated <- olympics7 %>%
   duplicated() 
 
+# Get rid of duplicates
 olympics8 <- olympics7[!duplicated,]
 ```
 
-## Combined temperature/elevation data with medal data
+## Combined join medalratio data onto temperature/elevation data
 ```{r}
+# Join dataset that contains medalratio info onto olympics8
 olympics9 <- olympics6 %>%
   left_join(olympics8, by = c("Year" = "Year", "Season" = "Season", "region" = "region"))
 ```
