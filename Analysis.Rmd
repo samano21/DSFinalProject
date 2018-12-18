@@ -54,26 +54,6 @@ olympicsds %>%
   ggplot(aes(x = tempdiff, y = medratio)) + geom_point()
 ```
 
-## Plot of what we expected to see 
-```{r}
-
-########################################
-##   Hypothetical (Our Expectation)   ##
-########################################
-
-set.seed(10)
-elev <- rnorm(30, 0, 200)
-temp <- rnorm(30, 0, 4)
-
-expected <- data.frame(elev, temp) %>%
-  mutate(dist = sqrt((elev/200)^2 + (temp/4)^2),
-         dist = (1 - dist/max(dist)) * 0.3)
-
-ggplot(expected, aes(x = elev, y = temp, col = dist)) + geom_point() +
-  labs(x = "Elevation Difference (Meter)", y = "Temperature Difference (Degree Celcius)", title = "Expected Graph: Medal Ratio by Temperature and Elevation Difference", color = "Medal Ratio") + scale_color_gradient(low = "yellow", high = "blue") + 
-  geom_vline(xintercept = 0) + geom_hline(yintercept = 0)
-```
-
 
 ## Plots exploring effects of elevation/temperature difference on medal ratios
 ```{r}
@@ -109,18 +89,25 @@ olympicsds1 %>%
 
 
 
-## Create dataset used for modelling
+## Create dataset used for modeling
 ```{r}
 # Only keep rows that are summer and is not missing temperature and elevation difference  
 formodel1 <- olympicsds %>%
   filter(Season == "Summer", !is.na(tempdiff), !is.na(elevdiff))
-
-# Create linear mixed model with clustering as country/region
-summary(lmer(medratio ~ tempdiff + elevdiff + (1|region), data = formodel1))
 ```
 
 
-#Finding Thresholds for "Similar/Nonsimilar temp/elev"
+## Linear mixed model
+```{r}
+# Create linear mixed model with clustering as country/region
+model <- lmer(medratio ~ tempdiff + elevdiff + (1|region), data = formodel1)
+
+# Output model summary
+summary(model)
+```
+
+
+## Finding Thresholds for "Similar/Nonsimilar temp/elev"
 ```{r}
 olympicsds%>%
 ggplot(aes(x=tempdiff))+
@@ -145,12 +132,4 @@ olympicsds2 %>%
   filter(region == "Germany") %>%
   ggplot(aes(x = elevdiff, y = medratio, col = Season, )) + geom_point() 
 ```
-
-
-
-
-
-
-
-
 

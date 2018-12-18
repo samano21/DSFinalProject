@@ -19,7 +19,7 @@ require(lme4)
 ```
 
 
-## Graphics representing hypothesis
+## Graphics representing our initial hypothesis
 ```{r}
 
 ########################################
