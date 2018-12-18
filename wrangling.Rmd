@@ -5,9 +5,10 @@ output: pdf_document
 
 ## Document Options
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+knitr::opts_chunk$set(echo = TRUE, 
+                      warning = FALSE, 
+                      message = FALSE)
 ```
-
 
 ## Load Packages
 ```{r}
@@ -256,8 +257,11 @@ olympics8 <- olympics7[!duplicated,]
 ## Combined join medalratio data onto temperature/elevation data
 ```{r}
 # Join dataset that contains medalratio info onto olympics8
-olympics9 <- olympics6 %>%
-  left_join(olympics8, by = c("Year" = "Year", "Season" = "Season", "region" = "region"))
+olympics9 <- olympics6 %>% 
+  left_join(olympics8, by = c("Year" = "Year", "Season" = "Season", "region" = "region")) %>%
+  
+# Select out columns that does not have further use  
+  select(-medalswon, -TotMed)
 ```
 
 
