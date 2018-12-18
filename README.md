@@ -9,3 +9,6 @@ Simply "Run All" wrangling.rmd to create the dataset used in Analysis.Rmd. Runni
 
 ## PresentationGraphics.rmd
 "Run All" PresentationGrahpics to output graphics used in presentations. All graphics are hypothetical ones that do not reflect reality. Graphics were used to explain concepts easily. 
+
+## Data 
+Contains all the dataset used in Wrangling.rmd
