@@ -51,28 +51,27 @@ In our LMM, which models medal ratio using temperature difference and elevation 
 In this section, we will describe the process we employed to create the dataset used in the final analysis. We began this process by deciding that the final dataset will contain following variables in each row: Country, Year, Elevation Difference, Temperature Difference and Medal Ratio. This decision was made by thinking which data would most effectively answer our research question. 
 
 We started off with 7 different datasets:
-- regions dataset (NOC_Region) 
-    - Contained the NOC country code and name of the country.
-    - Collected from Kaggle page “Olympic history data: thorough analysis” by Randi H. Griffin
-- athletes dataset (Olympics_Athletes)
-    - Contained the NOC country code, Year, Season, Host City, Team, Sports and Medal(“Bronze”, “Silver”, “Gold”,           “NA”) for every athletes who competed in any Olympics before and including the 2016 Summer Olympics.
-    - Collected from Kaggle page “Olympic History Data: Thorough Analysis” by Randi H. Griffin
-- countryCode dataset (ISOCountryCode) 
-    - Contained the ISO country code and country name for every country. 
-    - Collected from https://github.com/lukes/ISO-3166-Countries-with-Regional-Codes/blob/master/all/all.csv
-- temphistory dataset (Historical_Temp_Data) 
-    - Contained the ISO country code and historic average temperature (degree Celsius) for each month over the past 38       years. 
-    - Collected from the World Bank’s Climate Change Knowledge Portal    
-      http://sdwebx.worldbank.org/climateportal/index.cfm?page=country_historical_climate
-- olymwweather dataset (Olympics_Weather_Data) 
-    - Contained year, city, season(Summer of Winter), starting date, ending date, number of days, altitude of host          city(m), average monthly temperature in the host city for the durations of the olympics(degree Celsius). If the       olympic was across two months, the dataset contained average temperature for both months.
-    - Collected from Berkley Earth, a climate change research institution http://berkeleyearth.lbl.gov/city-list/ 
-- Indoor/Outdoor dataset (indooroutdoorClass)
-    - Contained binary variable for whether a sport is played indoor or outdoor for every sports in the athletes            dataset
-    - We created this dataset by looking at each sports in wikipedia. If a sport was played both indoor and outdoor         depending on competition, we labelled the sport as outdoor.
-- Elevation dataset 
-    - Contained average elevation for every country in meters
-    - Scraped from Wikipedia “List of Countries by Average Elevation” page
+# regions dataset (NOC_Region) 
+-Contained the NOC country code and name of the country.
+-Collected from Kaggle page “Olympic history data: thorough analysis” by Randi H. Griffin
+# athletes dataset (Olympics_Athletes)
+-Contained the NOC country code, Year, Season, Host City, Team, Sports and Medal(“Bronze”, “Silver”, “Gold”, “NA”) for every athletes who competed in any Olympics before and including the 2016 Summer Olympics.
+- Collected from Kaggle page “Olympic History Data: Thorough Analysis” by Randi H. Griffin
+# countryCode dataset (ISOCountryCode) 
+- Contained the ISO country code and country name for every country. 
+- Collected from https://github.com/lukes/ISO-3166-Countries-with-Regional-Codes/blob/master/all/all.csv
+# temphistory dataset (Historical_Temp_Data) 
+- Contained the ISO country code and historic average temperature (degree Celsius) for each month over the past 38 years. 
+- Collected from the World Bank’s Climate Change Knowledge Portal http://sdwebx.worldbank.org/climateportal/index.cfm?page=country_historical_climate
+# olymwweather dataset (Olympics_Weather_Data) 
+- Contained year, city, season(Summer of Winter), starting date, ending date, number of days, altitude of host city(m), average monthly temperature in the host city for the durations of the olympics(degree Celsius). If the olympic was across two months, the dataset contained average temperature for both months.
+- Collected from Berkley Earth, a climate change research institution http://berkeleyearth.lbl.gov/city-list/ 
+# Indoor/Outdoor dataset (indooroutdoorClass)
+- Contained binary variable for whether a sport is played indoor or outdoor for every sports in the athletes dataset
+- We created this dataset by looking at each sports in wikipedia. If a sport was played both indoor and outdoor depending on competition, we labelled the sport as outdoor.
+# Elevation dataset 
+- Contained average elevation for every country in meters
+- Scraped from Wikipedia “List of Countries by Average Elevation” page
 
 
 ## Load Datasets
