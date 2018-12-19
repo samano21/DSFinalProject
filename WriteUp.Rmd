@@ -364,10 +364,22 @@ formodel1 <- olympics9 %>%
 
 # Create linear mixed model with clustering as country/region
 model <- lmer(medratio ~ tempdiff + elevdiff + (1|region), data = formodel1)
+```
 
+
+In our linear mixed model, we found there to be no explanatory power from neither temperature difference nor elevation difference. We came to this conclusion because of temperature difference’s and elevation difference’s t-value. The R package we use (lme4) lacks P-value computations and uses t-value and the t distribution to gauge significance. We know that the further the t-value is to zero, the smaller the p-value. Luckily, for our model summary, both temperature difference and elevation difference had t-values very close to zero, allowing us to deduce that these two factors had no explanatory power, like we hypothesized. 
+
+
+```{r}
 # Output model summary
 summary(model)
 ```
+LMM mainly uses t-values instead of p-values. Because of this caveat, our assessment of the model is not wholly accurate. Fortunately, the model with both temperature difference and elevation difference had respective t-values of 0.784 and 0.535 which are both very close to zero. Through this, we deduce that neither elevation difference nor temperature difference has no significant effect on q country’s medal ratio. 
+
+While keeping in mind that neither predictor is significant, we observe the coefficients’ signs are interesting because both are positive, indicating that with an increase in elevation difference or temperature difference, there is a boost in medal ratio. 
+
+Temperature difference’s coefficient is 1.135e-4, which can be interpreted as: with an one degree celsius increase, a country’s medal ratio will increase by .000135. For elevation difference, its coefficient of 6.862e-7 can be interpreted as: with a one meter increase in elevation, a country’s medal ratio increases by 6.862e-7. However, it is very important to note that these interpretations are severely limited because neither factor are significant in the model. These interpretations are viable only if the predictors were significant. 
+
 
 
 
