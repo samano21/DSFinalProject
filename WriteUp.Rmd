@@ -356,6 +356,8 @@ olympicsds1 %>%
 ```
 We generated this plot to see whether there were any patterns that could be detected visually. This graphic plots Elevation Difference and Temperature Difference onto an x-y plane and the color of the points represents medal ratio. We picked Australia, Germany and UK because they are consisting high performers in the Olympics and because they have smaller landmass than other high performers(US,Russia,China). Looking at the graph, we do not see any noticable relationships between Elevation Difference, Temperature Difference and Medal Ratio. At this point, we started to suspect that there are no strong connections between a country's olympic performance and the temperature/elevation difference. 
 
+#Results
+
 ## Create a linear mixed model
 ```{r}
 # Only keep rows that are summer and is not missing temperature and elevation difference  
@@ -384,13 +386,25 @@ Temperature difference’s coefficient is 1.135e-4, which can be interpreted as:
 
 
 
+# Conclusion
+
+Ultimately, from our current model, we do not detect temperature difference or elevation difference to have an effect on a country's medal performance, disproving our initial hypothesis and answering our research question. It is important to note that this study does not imply temperature difference and elevation difference have no effect on a country’s performance. It merely states we did not DETECT any significant difference. 
 
 
+We started this investigation to study whether temperature and elevation difference between an Olympic host city and a country has any effect on the performance of each country. Our linear mixed model suggests that temperature difference and elevation difference do not have significant relationships with a country’s performance in the olympics. However, there are several limitations to this model.
 
 
+The main limitation to our model is the lack of P-values. Without p-values, it is harder to interpret the model and determine the validity of a model's meaning. However, instead of relying solely on p-values, we used other statistical measures to evaluate the model such as t-values and coefficients' signs. While these are far from "best practice", the lack of p-values reminded us of the industry's overreliance on p-values and the flaws p-values have as well (https://amstat.tandfonline.com/doi/abs/10.1080/00031305.2016.1154108#.WBCslMmJQ20). A way to navigate around this is to contact different authors of R packages related to LMMs and see their thoughts on testing the validity of LMMs. In improving our model, close work with one of the R package authors would be a key future step. 
 
 
+Also, the fact that random effects are on a zero-inflated distribution may have created bias in our model. A zero-inflated distribution means that a poisson or exponential distribution would have been better than the usually-assumed normal distribution for the random effect.
 
+Furthermore, there are multiple packages that support LMM. We decided to user lme4 because it was used most frequently and there were more documentation related to the package. For the future, we could do further research on different R packages that uses LMM and find the pros/cons of each one to see which fits our topic the best.  
+
+For our data, one limitation was that we could not collect many of the host city temperature data for the winter olympics, mostly due to the fact that winter olympics are held in remote areas. This limited the range of analysis to the summer olympics. This was unfortunate since we were interested in comparing the two olympics.
+
+Another limitation was that we were not able to collect data related to the range of temperature and elevation. In geographically large countries like the United States and China, there is a large range in elevation and temperature. To accurately depict larger countries, using values such as min/max or IQR would have been ideal, but there were no sources that collected such data many years into the past. 
+Finding the correct metric to capture the variations in elevation and temperature would be a promising effort for the future. Additionally, instead of just temperature and elevation, adding other weather factors such as humidity, air pressure, and precipitation could be a useful endeavor. 
 
 
 
