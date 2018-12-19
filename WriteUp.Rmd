@@ -402,7 +402,7 @@ summary(model)
 ```
 LMM mainly uses t-values instead of p-values. Because of this caveat, our assessment of the model is not wholly accurate. Fortunately, the model with both temperature difference and elevation difference had respective t-values of 0.784 and 0.535 which are both very close to zero. Through this, we deduce that neither elevation difference nor temperature difference has no significant effect on q country’s medal ratio. 
 
-While keeping in mind that neither predictor is significant, we observe the coefficients’ signs are interesting because both are positive, indicating that with an increase in elevation difference or temperature difference, there is a boost in medal ratio. 
+While keeping in mind that neither predictor is significant, we observe the coefficients’ signs are interesting because both are positive, indicating that with an increase in elevation difference or temperature difference, there is a boost in medal ratio. This is unexpected since intuitively a higher elevation difference and higher temperature difference would lower the medal ratio. 
 
 Temperature difference’s coefficient is 1.135e-4, which can be interpreted as: with an one degree celsius increase, a country’s medal ratio will increase by .000135. For elevation difference, its coefficient of 6.862e-7 can be interpreted as: with a one meter increase in elevation, a country’s medal ratio increases by 6.862e-7. However, it is very important to note that these interpretations are severely limited because neither factor are significant in the model. These interpretations are viable only if the predictors were significant. 
 
@@ -424,6 +424,8 @@ The main limitation to our model is the lack of P-values. Without p-values, it i
 Also, the fact that random effects are on a zero-inflated distribution may have created bias in our model. A zero-inflated distribution means that a poisson or exponential distribution would have been better than the usually-assumed normal distribution for the random effect.
 
 Furthermore, there are multiple packages that support LMM. We decided to user lme4 because it was used most frequently and there were more documentation related to the package. For the future, we could do further research on different R packages that uses LMM and find the pros/cons of each one to see which fits our topic the best.  
+
+A key portion of the project was learning the basics of linear mixed models. After the first multiple linear regression model failed its assumptions, we researched a variety of models, looking for which one is appropriate for our data and goals. We found LMM to be a suitable but nonetheless flawed model. Because of its lack of p-values, we were challenged to find unique ways to interpret our model. 
 
 For our data, one limitation was that we could not collect many of the host city temperature data for the winter olympics, mostly due to the fact that winter olympics are held in remote areas. This limited the range of analysis to the summer olympics. This was unfortunate since we were interested in comparing the two olympics.
 
