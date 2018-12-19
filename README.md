@@ -1,7 +1,11 @@
 # DSFinalProject
 Data Science Final Project for Shu and Andy
 
+## WriteUp.rmd
+Contains the technical writeup. It is organized according to the format Alex Baldenko has provided.
+
 ## Wrangling.rmd
+Contains all code to wrangle data. 
 Simply "Run All" wrangling.rmd to create the dataset used in Analysis.Rmd. Running Wrangling.rmd will create a olympics9.Rdata file. 
 
 ## Analysis.rmd
