@@ -328,6 +328,30 @@ After leftjoining olympics8 onto olympics6, we were able to create the final dat
 
 
 # Analysis
+
+What we expected to see in the data was the following graphics. 
+## Graphics representing our initial hypothesis
+```{r}
+
+########################################
+##   Hypothetical (Our Expectation)   ##
+########################################
+
+set.seed(10)
+elev <- rnorm(30, 0, 200)
+temp <- rnorm(30, 0, 4)
+
+expected <- data.frame(elev, temp) %>%
+  mutate(dist = sqrt((elev/200)^2 + (temp/4)^2),
+         dist = (1 - dist/max(dist)) * 0.3)
+
+ggplot(expected, aes(x = elev, y = temp, col = dist)) + geom_point() +
+  labs(x = "Elevation Difference (Meter)", y = "Temperature Difference (Degree Celcius)", title = "Expected Graph: Medal Ratio by Temperature and Elevation Difference", color = "Medal Ratio") + scale_color_gradient(low = "yellow", high = "blue") + 
+  geom_vline(xintercept = 0) + geom_hline(yintercept = 0)
+```
+We expected to see that as elevation difference and temperature difference gets larger, the medal ratio gets lower. This is represented in the graphics as the distance from the origin increases, the points get yellower. However, what the data showed up was different. 
+
+
 ## Plots exploring effects of elevation/temperature difference on medal ratios
 ```{r}
 # Create dataset for graphical exploration
@@ -354,7 +378,7 @@ olympicsds1 %>%
          title = "Medal Ratio by Temperature and Elevation Difference in 3 Countries", 
          color = "Medal Ratio")
 ```
-We generated this plot to see whether there were any patterns that could be detected visually. This graphic plots Elevation Difference and Temperature Difference onto an x-y plane and the color of the points represents medal ratio. We picked Australia, Germany and UK because they are consisting high performers in the Olympics and because they have smaller landmass than other high performers(US,Russia,China). Looking at the graph, we do not see any noticable relationships between Elevation Difference, Temperature Difference and Medal Ratio. At this point, we started to suspect that there are no strong connections between a country's olympic performance and the temperature/elevation difference. 
+This graphic plots Elevation Difference and Temperature Difference onto an x-y plane and the color of the points represents medal ratio. We picked Australia, Germany and UK because they are consisting high performers in the Olympics and because they have smaller landmass than other high performers(US,Russia,China). Looking at the graph, we do not see any noticable relationships between Elevation Difference, Temperature Difference and Medal Ratio. At this point, we started to suspect that there are no strong connections between a country's olympic performance and the temperature/elevation difference. 
 
 #Results
 
