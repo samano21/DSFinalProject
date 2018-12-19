@@ -57,11 +57,6 @@ olympicsds %>%
 
 ## Plots exploring effects of elevation/temperature difference on medal ratios
 ```{r}
-
-#############################
-##   Plot from Real Data   ##
-#############################
-
 # Create dataset for graphical exploration
 olympicsds1 <- olympicsds %>%
   
